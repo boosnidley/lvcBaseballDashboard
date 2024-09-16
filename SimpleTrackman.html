@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hitting and Pitching Stats</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: lightgray;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            background-color: navy;
+            color: white;
+            padding: 10px;
+            position: relative;
+        }
+
+        header img {
+            width: 75px;
+            height: 75px;
+            margin-right: 20px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+            text-align: center;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .input-container {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+        }
+
+        input[type="file"],
+        select,
+        input[type="text"] {
+            margin-right: 20px;
+        }
+
+        #sortDropdown {
+            display: none;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        th,
+        td {
+            padding: 8px;
+            text-align: left;
+            border: 1px solid black;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        th {
+            background-color: navy;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:nth-child(odd) {
+            background-color: #ffffff;
+        }
+
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <img src="Images/logo_main.svg" alt="Logo" id="logo">
+        <h1>Trackman Stats</h1>
+    </header>
+
+    <!-- Flex container for inputs and filters -->
+    <div class="input-container">
+        <input type="file" id="fileInput" accept=".csv">
+        <div id="filters">
+            <label><input type="radio" name="dataType" value="hitting" checked> Hitting</label>
+            <label><input type="radio" name="dataType" value="pitching"> Pitching</label>
+            <label><input type="radio" name="dataType" value="catching"> Catching</label>
+            <select id="sortDropdown">
+                <option value="">Sort by...</option>
+            </select>
+            <label><input type="radio" name="sortOrder" value="asc" checked> Ascending</label>
+            <label><input type="radio" name="sortOrder" value="desc"> Descending</label>
+            <input type="text" id="searchInput" placeholder="Search by name...">
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table id="statsTable"></table>
+    </div>
+
+    <script>
+        let originalRows = [];
+        let headers = [];
+        let sortedRows = [];
+
+        document.getElementById('fileInput').addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const text = e.target.result;
+                Papa.parse(text, {
+                    header: true,
+                    complete: function (results) {
+                        const data = results.data;
+
+                        // Call the function to process data based on selected radio button
+                        processCSV(data);
+                    }
+                });
+            };
+            reader.readAsText(file);
+        });
+
+        // Event listener for radio button changes
+        document.querySelectorAll('input[name="dataType"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                const fileInput = document.getElementById('fileInput');
+                if (fileInput.files.length > 0) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const text = e.target.result;
+                        Papa.parse(text, {
+                            header: true,
+                            complete: function (results) {
+                                const data = results.data;
+                                processCSV(data);
+                            }
+                        });
+                    };
+                    reader.readAsText(fileInput.files[0]);
+                }
+            });
+        });
+
+        // Process CSV based on selected option (Hitting or Pitching)
+function processCSV(data) {
+    const dataType = document.querySelector('input[name="dataType"]:checked').value;
+
+    let columnsToKeep = [];
+
+    // Define columns to keep for hitting or pitching
+    if (dataType === 'hitting') {
+        columnsToKeep = ['Batter', 'PlayResult', 'AutoHitType', 'ExitSpeed', 'Angle', 'HitSpinRate', 'Distance', 'RelSpeed',
+            'EffectiveVelo', 'HangTime'];
+    } else if (dataType === 'pitching') {
+        columnsToKeep = [ "Pitcher",  "Batter","TaggedPitchType","RelSpeed", "SpinRate", 
+        "InducedVertBreak", "HorzBreak", "Tilt", "RelHeight", "RelSide", "ExitSpeed"];
+    } else if (dataType === 'catching') {
+        columnsToKeep = [ "Catcher",  "ThrowSpeed","PopTime","ExchangeTime", "TimeToBase"];
+    }
+    // Remove commas from 'Batter' or 'Pitcher' and filter data to keep only selected columns
+    const filteredData = data.map(row => {
+        const filteredRow = {};
+        columnsToKeep.forEach(col => {
+            filteredRow[col] = row[col] || ''; // Handle missing columns gracefully
+        });
+
+        // Remove commas from Batter or Pitcher field
+        if (filteredRow['Batter']) {
+            filteredRow['Batter'] = filteredRow['Batter'].replace(/,/g, '');
+        }
+        if (filteredRow['Pitcher']) {
+            filteredRow['Pitcher'] = filteredRow['Pitcher'].replace(/,/g, '');
+        }
+        if (filteredRow['Catcher']) {
+            filteredRow['Catcher'] = filteredRow['Catcher'].replace(/,/g, '');
+        }
+
+        return filteredRow;
+    });
+
+    headers = columnsToKeep;
+    originalRows = filteredData.filter(row => row[headers[0]]); // Ensure valid rows
+    sortedRows = [...originalRows];
+
+    // Display table and sort dropdown
+    populateTable(sortedRows);
+    populateSortDropdown(headers);
+}
+
+
+        // Populate table with data
+        function populateTable(rows) {
+            const table = document.getElementById('statsTable');
+            let thead = '<tr>';
+            headers.forEach(header => {
+                thead += `<th>${header}</th>`;
+            });
+            thead += '</tr>';
+
+            let tbody = '';
+            rows.forEach(row => {
+                let tr = '<tr>';
+                headers.forEach(col => {
+                    tr += `<td>${row[col] || ''}</td>`; // Use empty string if undefined
+                });
+                tr += '</tr>';
+                tbody += tr;
+            });
+            table.innerHTML = thead + tbody;
+        }
+
+        // Populate sort dropdown with column headers
+        function populateSortDropdown(headers) {
+            const dropdown = document.getElementById('sortDropdown');
+            dropdown.innerHTML = '<option value="">Sort by...</option>';
+            headers.forEach((header, index) => {
+                dropdown.innerHTML += `<option value="${index}">${header}</option>`;
+            });
+            dropdown.style.display = 'inline-block';
+        }
+
+        // Event listeners for sorting and filtering
+        document.getElementById('sortDropdown').addEventListener('change', function () {
+            sortAndDisplay();
+        });
+
+        document.getElementsByName('sortOrder').forEach(radio => {
+            radio.addEventListener('change', function () {
+                sortAndDisplay();
+            });
+        });
+
+        document.getElementById('searchInput').addEventListener('input', function () {
+            const searchTerm = this.value.toLowerCase();
+            const filteredRows = sortedRows.filter(row => row[headers[0]].toLowerCase().includes(searchTerm));
+            populateTable(filteredRows);
+        });
+
+        // Sort table and display
+        function sortAndDisplay() {
+            const sortBy = document.getElementById('sortDropdown').value;
+            const sortOrder = document.querySelector('input[name="sortOrder"]:checked').value;
+
+            if (sortBy === '') return; // Exit if no sorting option is selected
+
+            sortedRows = [...originalRows].sort((a, b) => {
+                const aValue = parseFloat(a[headers[sortBy]]) || 0;
+                const bValue = parseFloat(b[headers[sortBy]]) || 0;
+
+                return sortOrder === 'asc' ? aValue - bValue : bValue - aValue;
+            });
+
+            // If there's a search term, filter the sorted data before displaying
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const filteredRows = searchTerm ? sortedRows.filter(row => row[headers[0]].toLowerCase().includes(searchTerm)) : sortedRows;
+
+            populateTable(filteredRows);
+        }
+    </script>
+</body>
+
+</html>

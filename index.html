@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        /* General Page Style */
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .background {
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            background-image: url("logo_main.svg");
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            filter: blur(6px);
+            z-index: -1;
+        }
+
+        /* Header */
+        .header {
+            background-color: navy;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            box-shadow: 0px 4px 2px -2px gray;
+            z-index: 1;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .header .sub-title {
+            font-size: 16px;
+            position: absolute;
+            left: 20px; /* Adjust the space from the left edge as needed */
+        }
+
+        .header .title {
+            margin: 0;
+            font-size: 24px;
+            flex-grow: 1; /* Center the main title */
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: calc(100vh - 80px);
+            width: 100%;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+
+        /* Main Button Styling */
+        .main-button {
+            width: 400px;
+            height: 30vh;
+            margin: 10px;
+            font-size: 24px;
+            background-color: navy;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .main-button:hover {
+            background-color: gray;
+            transform: scale(1.05);
+        }
+
+        .button-container {
+            display: flex;
+            flex-wrap: wrap; /* Allows buttons to wrap onto new lines if necessary */
+            gap: 20px;
+            justify-content: center;
+        }
+
+        /* Smooth transitions for hover effects */
+        .main-button:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with logo and title -->
+    <div class="header">
+        <div class="sub-title">Lebanon Valley College</div>
+        <h1 class="title">Team Dashboard</h1>
+    </div>
+    <div class="background"></div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="button-container">
+            <a href="SimpleTrackman.html">
+                <button class="main-button" id="btn1">Team Stats</button>
+            </a>
+            <a href="IndividualTrackman.html">
+                <button class="main-button" id="btn2">Individual Stats</button>
+            </a>
+            <a href="NewFeature1.html">
+                <button class="main-button" id="btn3">Graphs Collection</button>
+            </a>
+            <a href="NewFeature2.html">
+                <button class="main-button" id="btn4">Advanced Metrics</button>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript code (if any) can be added here
+    </script>
+</body>
+</html>
