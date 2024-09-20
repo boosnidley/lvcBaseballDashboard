@@ -168,7 +168,7 @@ function processCSV(data) {
 
     // Define columns to keep for hitting or pitching
     if (dataType === 'hitting') {
-        columnsToKeep = ['Batter', 'PlayResult', 'AutoHitType', 'ExitSpeed', 'Angle', 'HitSpinRate', 'Distance', 'RelSpeed',
+        columnsToKeep = ['Batter', 'PlayResult', 'AutoHitType', 'ExitSpeed', 'Angle', 'HitSpinRate', 'Distance', 'HitSpinAxis', 'RelSpeed',
             'EffectiveVelo', 'HangTime', 'xwOBA'];
     } else if (dataType === 'pitching') {
         columnsToKeep = [ "Pitcher",  "Batter","TaggedPitchType","RelSpeed", "SpinRate", 
