@@ -169,10 +169,10 @@ function processCSV(data) {
     // Define columns to keep for hitting or pitching
     if (dataType === 'hitting') {
         columnsToKeep = ['Batter', 'PlayResult', 'AutoHitType', 'ExitSpeed', 'Angle', 'HitSpinRate', 'Distance', 'RelSpeed',
-            'EffectiveVelo', 'HangTime'];
+            'EffectiveVelo', 'HangTime', 'xwOBA'];
     } else if (dataType === 'pitching') {
         columnsToKeep = [ "Pitcher",  "Batter","TaggedPitchType","RelSpeed", "SpinRate", 
-        "InducedVertBreak", "HorzBreak", "Tilt", "RelHeight", "RelSide", "ExitSpeed"];
+        "InducedVertBreak", "HorzBreak", "Tilt", "RelHeight", "RelSide", "ExitSpeed", 'xwOBA'];
     } else if (dataType === 'catching') {
         columnsToKeep = [ "Catcher",  "ThrowSpeed","PopTime","ExchangeTime", "TimeToBase"];
     }
